@@ -70,7 +70,7 @@ export default function ExecutiveTemplate({ data }: Props) {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ fontSize: '13px', color: '#1a56db', fontWeight: '600' }}>{exp.company}</span>
-                    <span style={{ fontSize: '11px', color: '#6b7280', backgroundColor: '#eff6ff', padding: '2px 10px', borderRadius: '12px', whiteSpace: 'nowrap', marginLeft: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#6b7280', whiteSpace: 'nowrap', marginLeft: '8px' }}>
                       {exp.startDate} — {exp.endDate || 'Present'}
                     </span>
                   </div>
@@ -92,7 +92,7 @@ export default function ExecutiveTemplate({ data }: Props) {
                   <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827' }}>{edu.degree}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3px' }}>
                     <span style={{ fontSize: '13px', color: '#1a56db', fontWeight: '600' }}>{edu.school}</span>
-                    <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                    <span style={{ fontSize: '11px', color: '#6b7280', whiteSpace: 'nowrap' }}>
                       {edu.startDate} — {edu.endDate || 'Present'}
                     </span>
                   </div>

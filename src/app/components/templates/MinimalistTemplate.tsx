@@ -41,7 +41,7 @@ export function MinimalistTemplate({ data, colors, font }: Props) {
         <Section title="Work Experience" color={colors.primary}>
           {experience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                 <div>
                   <p style={{ fontWeight: 600, fontSize: '12px', margin: 0, color: '#222' }}>{exp.position}</p>
                   <p style={{ fontSize: '11px', color: colors.primary, margin: '1px 0', fontWeight: 500 }}>{exp.company}</p>

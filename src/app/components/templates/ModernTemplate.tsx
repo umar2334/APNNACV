@@ -105,7 +105,7 @@ export function ModernTemplate({ data, colors, font, onPhotoChange }: Props) {
             {experience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '14px', paddingLeft: '12px', borderLeft: `3px solid ${colors.light}` }}>
                 <p style={{ fontWeight: 700, fontSize: '12px', margin: '0 0 2px', color: '#1a1a1a' }}>{exp.position}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
                   <p style={{ fontSize: '11px', color: colors.primary, margin: 0, fontWeight: 600 }}>{exp.company}</p>
                   <span style={{ fontSize: '10px', color: '#888', flexShrink: 0, whiteSpace: 'nowrap' }}>{exp.startDate} — {exp.current ? 'Present' : exp.endDate}</span>
                 </div>

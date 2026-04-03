@@ -110,13 +110,34 @@ export function Toolbar() {
         scrollY: 0,
         logging: false,
         onclone: (clonedDoc) => {
-          // html2canvas doesn't support oklch() (Tailwind v4 CSS)
-          // Replace all oklch() values with transparent fallback in cloned doc
+          // Fix 1: Replace oklch in all <style> tags
           clonedDoc.querySelectorAll('style').forEach((style) => {
             if (style.textContent) {
-              style.textContent = style.textContent.replace(/oklch\([^)]*\)/g, 'inherit');
+              style.textContent = style.textContent
+                .replace(/oklch\([^)]*\)/g, 'transparent')
+                .replace(/color-mix\([^)]*\)/g, 'transparent');
             }
           });
+
+          // Fix 2: Replace oklch in all inline styles
+          clonedDoc.querySelectorAll('*').forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            const style = htmlEl.getAttribute('style');
+            if (style && style.includes('oklch')) {
+              htmlEl.setAttribute('style', style.replace(/oklch\([^)]*\)/g, 'transparent'));
+            }
+          });
+
+          // Fix 3: Inject override stylesheet to neutralize Tailwind v4 oklch vars
+          const overrideStyle = clonedDoc.createElement('style');
+          overrideStyle.textContent = `
+            *, *::before, *::after {
+              --tw-ring-color: transparent !important;
+              --tw-shadow-color: transparent !important;
+              border-color: #e5e7eb !important;
+            }
+          `;
+          clonedDoc.head.appendChild(overrideStyle);
         },
       });
 

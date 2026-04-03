@@ -77,8 +77,8 @@ export const DEFAULT_CV_DATA: CVData = {
     email: 'umar@example.com',
     phone: '+92 300 1234567',
     location: 'Lahore, Pakistan',
-    linkedin: 'linkedin.com/in/muhammadumar',
-    website: 'muhammadumar.dev',
+    linkedin: 'linkedin.com/in/username',
+    website: 'yourwebsite.com',
   },
   summary:
     'Results-driven Software Engineer with 4+ years of experience building scalable web applications. Proficient in React, Node.js, and cloud technologies. Passionate about writing clean, maintainable code and delivering exceptional user experiences that drive business growth.',

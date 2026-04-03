@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Download, ChevronDown, Palette, Type, LayoutTemplate, Check, Sparkles } from 'lucide-react';
 import { useCVContext } from '../../context/CVContext';
 import { TemplateType, FontFamily, ColorScheme, colorSchemeMap } from '../../types/cv';
-import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 
 const TEMPLATES: { id: TemplateType; label: string; desc: string; tag: string; preview: React.ReactNode }[] = [
@@ -97,129 +96,100 @@ export function Toolbar() {
     setDownloading(true);
     await new Promise((res) => setTimeout(res, 400));
 
-    const container = document.createElement('div');
-
     try {
-      const scale = 2;
-      const W = element.scrollWidth;
+      const html2canvas = (await import('html2canvas')).default;
+
+      const scale = 3;
+      const W = element.offsetWidth;
       const H = element.scrollHeight;
 
-      container.style.cssText = `
-        position: fixed; top: -99999px; left: -99999px;
-        width: ${W}px; height: ${H}px;
-        background: #ffffff; overflow: visible; z-index: -9999;
-      `;
+      const canvas = await html2canvas(element, {
+        scale,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: W,
+        height: H,
+        windowWidth: W,
+        windowHeight: H,
+        logging: false,
+        ignoreElements: (el) => {
+          // Ignore any element that is NOT inside the cv-preview div
+          // (toolbar, editor panel, etc.)
+          const tag = el.tagName.toLowerCase();
+          // Skip inputs, textareas, buttons that leaked into clone
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+          // Skip elements with these classes (editor UI)
+          if (el.classList.contains('toolbar') || el.classList.contains('editor-panel')) return true;
+          return false;
+        },
+        onclone: (_doc, clonedEl) => {
+          // Force white background, remove shadows/borders
+          clonedEl.style.boxShadow = 'none';
+          clonedEl.style.borderRadius = '0';
+          clonedEl.style.background = '#ffffff';
 
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.cssText = `
-        width: ${W}px; min-height: ${H}px;
-        background: #ffffff; box-shadow: none;
-        border-radius: 0; position: static; margin: 0; padding: 28px 32px;
-      `;
+          // Kill all Tailwind CSS variable artifacts
+          const style = _doc.createElement('style');
+          style.textContent = `
+            * {
+              --tw-ring-shadow: none !important;
+              --tw-shadow: none !important;
+              --tw-ring-color: transparent !important;
+              --tw-ring-offset-shadow: none !important;
+              --tw-border-color: transparent !important;
+              box-shadow: none !important;
+              outline: none !important;
+            }
+            input, textarea, select, button {
+              display: none !important;
+            }
+          `;
+          _doc.head.appendChild(style);
 
-      // ✅ KEY FIX: Replace all input/textarea with plain text spans
-      const inputs = clone.querySelectorAll('input, textarea');
-      inputs.forEach((input) => {
-        const el = input as HTMLInputElement | HTMLTextAreaElement;
-        const span = document.createElement('span');
-        span.textContent = el.value || el.placeholder || '';
-        // Copy computed font styles
-        span.style.cssText = `
-          font-size: inherit;
-          font-family: inherit;
-          color: inherit;
-          display: inline;
-          background: transparent;
-          border: none;
-          outline: none;
-          padding: 0;
-          margin: 0;
-        `;
-        el.parentNode?.replaceChild(span, el);
-      });
-
-      // ✅ Remove all borders, outlines, shadows from every element
-      const allEls = clone.querySelectorAll('*');
-      allEls.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        // Remove Tailwind ring/shadow CSS variables
-        htmlEl.style.setProperty('--tw-ring-shadow', 'none');
-        htmlEl.style.setProperty('--tw-shadow', 'none');
-        htmlEl.style.setProperty('--tw-ring-color', 'transparent');
-        htmlEl.style.removeProperty('box-shadow');
-        htmlEl.style.removeProperty('outline');
-        // Remove grey borders from skill badges etc
-        if (htmlEl.style.border && htmlEl.style.border.includes('gray')) {
-          htmlEl.style.border = 'none';
-        }
-      });
-
-      // Inject style to kill all leftover Tailwind borders/rings
-      const killStyle = document.createElement('style');
-      killStyle.textContent = `
-        * {
-          --tw-border-color: transparent !important;
-          --tw-ring-shadow: none !important;
-          --tw-shadow: none !important;
-          --tw-ring-color: transparent !important;
-          --tw-ring-offset-shadow: none !important;
-        }
-        input, textarea, select {
-          display: none !important;
-        }
-      `;
-      clone.prepend(killStyle);
-
-      container.appendChild(clone);
-      document.body.appendChild(container);
-
-      await new Promise((res) => setTimeout(res, 150));
-
-      const dataUrl = await domtoimage.toPng(clone, {
-        width: W * scale,
-        height: H * scale,
-        bgcolor: '#ffffff',
-        style: {
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-          width: W + 'px',
-          height: H + 'px',
+          // Replace all inputs with their value as plain text spans
+          const inputs = clonedEl.querySelectorAll('input, textarea');
+          inputs.forEach((inp) => {
+            const el = inp as HTMLInputElement;
+            const span = _doc.createElement('span');
+            span.textContent = el.value || el.getAttribute('placeholder') || '';
+            span.style.cssText = `
+              font-size: inherit;
+              font-family: inherit;
+              color: inherit;
+              background: transparent;
+              border: none;
+              padding: 0;
+              margin: 0;
+              display: inline;
+            `;
+            inp.parentNode?.replaceChild(span, inp);
+          });
         },
       });
-
-      document.body.removeChild(container);
-
-      const img = new Image();
-      img.src = dataUrl;
-      await new Promise((res) => { img.onload = res; });
 
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const PAGE_W = 210;
       const PAGE_H = 297;
-      const imgH = (img.height * PAGE_W) / img.width;
+      const totalH = (canvas.height * PAGE_W) / canvas.width;
 
-      if (imgH <= PAGE_H) {
-        pdf.addImage(dataUrl, 'PNG', 0, 0, PAGE_W, imgH);
+      if (totalH <= PAGE_H) {
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, PAGE_W, totalH);
       } else {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0);
-        const pageHeightPx = Math.floor((PAGE_H / PAGE_W) * img.width);
+        const pageHeightPx = Math.floor((PAGE_H / PAGE_W) * canvas.width);
         let y = 0;
         let page = 0;
-        while (y < img.height) {
-          const h = Math.min(pageHeightPx, img.height - y);
+        while (y < canvas.height) {
+          const sliceH = Math.min(pageHeightPx, canvas.height - y);
           const pc = document.createElement('canvas');
-          pc.width = img.width;
-          pc.height = h;
+          pc.width = canvas.width;
+          pc.height = sliceH;
           const pctx = pc.getContext('2d')!;
-          pctx.fillStyle = '#fff';
+          pctx.fillStyle = '#ffffff';
           pctx.fillRect(0, 0, pc.width, pc.height);
-          pctx.drawImage(canvas, 0, y, img.width, h, 0, 0, img.width, h);
+          pctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
           if (page > 0) pdf.addPage();
-          pdf.addImage(pc.toDataURL('image/png'), 'PNG', 0, 0, PAGE_W, (h * PAGE_W) / img.width);
+          pdf.addImage(pc.toDataURL('image/png'), 'PNG', 0, 0, PAGE_W, (sliceH * PAGE_W) / canvas.width);
           y += pageHeightPx;
           page++;
         }
@@ -227,9 +197,6 @@ export function Toolbar() {
 
       pdf.save('AppnaCv.pdf');
     } catch (err: unknown) {
-      if (document.body.contains(container)) {
-        document.body.removeChild(container);
-      }
       console.error('PDF error:', err);
       alert('Download failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
@@ -373,7 +340,6 @@ export function Toolbar() {
         {downloading ? 'Preparing...' : 'Download Free PDF'}
       </button>
 
-      {/* Close dropdowns on outside click */}
       {openDropdown && (
         <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
       )}

@@ -4,7 +4,6 @@ import { useCVContext } from '../../context/CVContext';
 import { TemplateType, FontFamily, ColorScheme, colorSchemeMap } from '../../types/cv';
 import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
-// html2canvas removed - using dom-to-image-more to avoid oklch parse errors
 
 const TEMPLATES: { id: TemplateType; label: string; desc: string; tag: string; preview: React.ReactNode }[] = [
   {
@@ -96,44 +95,85 @@ export function Toolbar() {
 
     setOpenDropdown(null);
     setDownloading(true);
-    await new Promise((res) => setTimeout(res, 300));
+    await new Promise((res) => setTimeout(res, 400));
+
+    const container = document.createElement('div');
 
     try {
       const scale = 2;
       const W = element.scrollWidth;
       const H = element.scrollHeight;
 
-      // Clone element and inject into isolated container
-      const container = document.createElement('div');
       container.style.cssText = `
-        position: fixed; top: -9999px; left: -9999px;
+        position: fixed; top: -99999px; left: -99999px;
         width: ${W}px; height: ${H}px;
-        background: #ffffff; overflow: hidden; z-index: -1;
+        background: #ffffff; overflow: visible; z-index: -9999;
       `;
 
       const clone = element.cloneNode(true) as HTMLElement;
       clone.style.cssText = `
         width: ${W}px; min-height: ${H}px;
         background: #ffffff; box-shadow: none;
-        border-radius: 0; position: static;
+        border-radius: 0; position: static; margin: 0; padding: 28px 32px;
       `;
 
-      // Strip all Tailwind CSS vars that cause grey lines
-      const stripStyle = document.createElement('style');
-      stripStyle.textContent = `
-        * { 
+      // ✅ KEY FIX: Replace all input/textarea with plain text spans
+      const inputs = clone.querySelectorAll('input, textarea');
+      inputs.forEach((input) => {
+        const el = input as HTMLInputElement | HTMLTextAreaElement;
+        const span = document.createElement('span');
+        span.textContent = el.value || el.placeholder || '';
+        // Copy computed font styles
+        span.style.cssText = `
+          font-size: inherit;
+          font-family: inherit;
+          color: inherit;
+          display: inline;
+          background: transparent;
+          border: none;
+          outline: none;
+          padding: 0;
+          margin: 0;
+        `;
+        el.parentNode?.replaceChild(span, el);
+      });
+
+      // ✅ Remove all borders, outlines, shadows from every element
+      const allEls = clone.querySelectorAll('*');
+      allEls.forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        // Remove Tailwind ring/shadow CSS variables
+        htmlEl.style.setProperty('--tw-ring-shadow', 'none');
+        htmlEl.style.setProperty('--tw-shadow', 'none');
+        htmlEl.style.setProperty('--tw-ring-color', 'transparent');
+        htmlEl.style.removeProperty('box-shadow');
+        htmlEl.style.removeProperty('outline');
+        // Remove grey borders from skill badges etc
+        if (htmlEl.style.border && htmlEl.style.border.includes('gray')) {
+          htmlEl.style.border = 'none';
+        }
+      });
+
+      // Inject style to kill all leftover Tailwind borders/rings
+      const killStyle = document.createElement('style');
+      killStyle.textContent = `
+        * {
           --tw-border-color: transparent !important;
           --tw-ring-shadow: none !important;
           --tw-shadow: none !important;
           --tw-ring-color: transparent !important;
-          outline: none !important;
+          --tw-ring-offset-shadow: none !important;
+        }
+        input, textarea, select {
+          display: none !important;
         }
       `;
-      clone.prepend(stripStyle);
+      clone.prepend(killStyle);
+
       container.appendChild(clone);
       document.body.appendChild(container);
 
-      await new Promise((res) => setTimeout(res, 100));
+      await new Promise((res) => setTimeout(res, 150));
 
       const dataUrl = await domtoimage.toPng(clone, {
         width: W * scale,
@@ -187,7 +227,9 @@ export function Toolbar() {
 
       pdf.save('AppnaCv.pdf');
     } catch (err: unknown) {
-      document.body.removeChild(container);
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
       console.error('PDF error:', err);
       alert('Download failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {

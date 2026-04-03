@@ -10,7 +10,7 @@ export function PersonalInfoSection() {
     setCVData((prev) => ({ ...prev, personalInfo: { ...prev.personalInfo, [key]: val } }));
 
   const fields = [
-    { key: 'fullName' as const, label: 'Full Name', icon: <User size={14} />, placeholder: 'Muhammad Umar', colSpan: 2 },
+    { key: 'fullName' as const, label: 'Full Name', icon: <User size={14} />, placeholder: 'your name ', colSpan: 2 },
     { key: 'title' as const, label: 'Job Title', icon: <User size={14} />, placeholder: 'Software Engineer', colSpan: 2 },
     { key: 'email' as const, label: 'Email Address', icon: <Mail size={14} />, placeholder: 'umar@example.com', colSpan: 1 },
     { key: 'phone' as const, label: 'Phone Number', icon: <Phone size={14} />, placeholder: '+92 300 0000000', colSpan: 1 },

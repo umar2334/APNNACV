@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Download, ChevronDown, Palette, Type, LayoutTemplate, Check, Sparkles } from 'lucide-react';
 import { useCVContext } from '../../context/CVContext';
 import { TemplateType, FontFamily, ColorScheme, colorSchemeMap } from '../../types/cv';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
+// html2canvas removed - using dom-to-image-more to avoid oklch parse errors
 
 const TEMPLATES: { id: TemplateType; label: string; desc: string; tag: string; preview: React.ReactNode }[] = [
   {
@@ -94,82 +95,58 @@ export function Toolbar() {
     if (!element) return;
     setDownloading(true);
 
-    // Temporarily remove shadow/border so they don't appear in PDF
     const prevShadow = element.style.boxShadow;
     const prevRadius = element.style.borderRadius;
     element.style.boxShadow = 'none';
     element.style.borderRadius = '0';
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        logging: false,
-        onclone: (clonedDoc) => {
-          // Fix 1: Replace oklch in all <style> tags
-          clonedDoc.querySelectorAll('style').forEach((style) => {
-            if (style.textContent) {
-              style.textContent = style.textContent
-                .replace(/oklch\([^)]*\)/g, 'transparent')
-                .replace(/color-mix\([^)]*\)/g, 'transparent');
-            }
-          });
-
-          // Fix 2: Replace oklch in all inline styles
-          clonedDoc.querySelectorAll('*').forEach((el) => {
-            const htmlEl = el as HTMLElement;
-            const style = htmlEl.getAttribute('style');
-            if (style && style.includes('oklch')) {
-              htmlEl.setAttribute('style', style.replace(/oklch\([^)]*\)/g, 'transparent'));
-            }
-          });
-
-          // Fix 3: Inject override stylesheet to neutralize Tailwind v4 oklch vars
-          const overrideStyle = clonedDoc.createElement('style');
-          overrideStyle.textContent = `
-            *, *::before, *::after {
-              --tw-ring-color: transparent !important;
-              --tw-shadow-color: transparent !important;
-              border-color: #e5e7eb !important;
-            }
-          `;
-          clonedDoc.head.appendChild(overrideStyle);
+      const scale = 2;
+      const dataUrl = await domtoimage.toPng(element, {
+        width: element.offsetWidth * scale,
+        height: element.offsetHeight * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          width: element.offsetWidth + 'px',
+          height: element.offsetHeight + 'px',
         },
       });
 
-      // Restore
       element.style.boxShadow = prevShadow;
       element.style.borderRadius = prevRadius;
+
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((res) => { img.onload = res; });
 
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const PAGE_W = 210;
       const PAGE_H = 297;
-      const imgW = PAGE_W;
-      const imgH = (canvas.height * PAGE_W) / canvas.width;
+      const imgH = (img.height * PAGE_W) / img.width;
 
       if (imgH <= PAGE_H) {
-        // Fits on one page
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgW, imgH);
+        pdf.addImage(dataUrl, 'PNG', 0, 0, PAGE_W, imgH);
       } else {
-        // Slice into A4 pages
-        const pageHeightPx = Math.floor((PAGE_H / PAGE_W) * canvas.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        const pageHeightPx = Math.floor((PAGE_H / PAGE_W) * img.width);
         let y = 0;
         let page = 0;
-        while (y < canvas.height) {
-          const h = Math.min(pageHeightPx, canvas.height - y);
+        while (y < img.height) {
+          const h = Math.min(pageHeightPx, img.height - y);
           const pc = document.createElement('canvas');
-          pc.width = canvas.width;
+          pc.width = img.width;
           pc.height = h;
-          const ctx = pc.getContext('2d')!;
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(0, 0, pc.width, pc.height);
-          ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+          const pctx = pc.getContext('2d')!;
+          pctx.fillStyle = '#fff';
+          pctx.fillRect(0, 0, pc.width, pc.height);
+          pctx.drawImage(canvas, 0, y, img.width, h, 0, 0, img.width, h);
           if (page > 0) pdf.addPage();
-          pdf.addImage(pc.toDataURL('image/png'), 'PNG', 0, 0, PAGE_W, (h * PAGE_W) / canvas.width);
+          pdf.addImage(pc.toDataURL('image/png'), 'PNG', 0, 0, PAGE_W, (h * PAGE_W) / img.width);
           y += pageHeightPx;
           page++;
         }

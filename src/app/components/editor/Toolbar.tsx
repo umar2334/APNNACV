@@ -93,7 +93,10 @@ export function Toolbar() {
   const handleDownload = async () => {
     const element = document.getElementById('cv-preview');
     if (!element) return;
+
+    setOpenDropdown(null);
     setDownloading(true);
+    await new Promise((res) => setTimeout(res, 300));
 
     const prevShadow = element.style.boxShadow;
     const prevRadius = element.style.borderRadius;
@@ -105,6 +108,7 @@ export function Toolbar() {
       const dataUrl = await domtoimage.toPng(element, {
         width: element.offsetWidth * scale,
         height: element.offsetHeight * scale,
+        bgcolor: '#ffffff',
         style: {
           transform: `scale(${scale})`,
           transformOrigin: 'top left',

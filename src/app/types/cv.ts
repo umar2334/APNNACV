@@ -71,7 +71,7 @@ export const colorSchemeMap: Record<ColorScheme, ColorSchemeColors> = {
 
 export const DEFAULT_CV_DATA: CVData = {
   personalInfo: {
-    fullName: 'Muhammad Umar',
+    fullName: 'your name ',
     photo: '',
     title: 'Senior Software Engineer',
     email: 'umar@example.com',

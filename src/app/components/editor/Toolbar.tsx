@@ -98,27 +98,56 @@ export function Toolbar() {
     setDownloading(true);
     await new Promise((res) => setTimeout(res, 300));
 
-    const prevShadow = element.style.boxShadow;
-    const prevRadius = element.style.borderRadius;
-    element.style.boxShadow = 'none';
-    element.style.borderRadius = '0';
-
     try {
       const scale = 2;
-      const dataUrl = await domtoimage.toPng(element, {
-        width: element.offsetWidth * scale,
-        height: element.offsetHeight * scale,
+      const W = element.scrollWidth;
+      const H = element.scrollHeight;
+
+      // Clone element and inject into isolated container
+      const container = document.createElement('div');
+      container.style.cssText = `
+        position: fixed; top: -9999px; left: -9999px;
+        width: ${W}px; height: ${H}px;
+        background: #ffffff; overflow: hidden; z-index: -1;
+      `;
+
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.cssText = `
+        width: ${W}px; min-height: ${H}px;
+        background: #ffffff; box-shadow: none;
+        border-radius: 0; position: static;
+      `;
+
+      // Strip all Tailwind CSS vars that cause grey lines
+      const stripStyle = document.createElement('style');
+      stripStyle.textContent = `
+        * { 
+          --tw-border-color: transparent !important;
+          --tw-ring-shadow: none !important;
+          --tw-shadow: none !important;
+          --tw-ring-color: transparent !important;
+          outline: none !important;
+        }
+      `;
+      clone.prepend(stripStyle);
+      container.appendChild(clone);
+      document.body.appendChild(container);
+
+      await new Promise((res) => setTimeout(res, 100));
+
+      const dataUrl = await domtoimage.toPng(clone, {
+        width: W * scale,
+        height: H * scale,
         bgcolor: '#ffffff',
         style: {
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
-          width: element.offsetWidth + 'px',
-          height: element.offsetHeight + 'px',
+          width: W + 'px',
+          height: H + 'px',
         },
       });
 
-      element.style.boxShadow = prevShadow;
-      element.style.borderRadius = prevRadius;
+      document.body.removeChild(container);
 
       const img = new Image();
       img.src = dataUrl;
@@ -158,8 +187,7 @@ export function Toolbar() {
 
       pdf.save('AppnaCv.pdf');
     } catch (err: unknown) {
-      element.style.boxShadow = prevShadow;
-      element.style.borderRadius = prevRadius;
+      document.body.removeChild(container);
       console.error('PDF error:', err);
       alert('Download failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Download, ChevronDown, Palette, Type, LayoutTemplate, Check, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { useCVContext } from '../../context/CVContext';
 import { TemplateType, FontFamily, ColorScheme, colorSchemeMap } from '../../types/cv';
 import jsPDF from 'jspdf';
+import { storePendingBlob } from '../../utils/downloadManager';
 
 const TEMPLATES: { id: TemplateType; label: string; desc: string; tag: string; preview: React.ReactNode }[] = [
   {
@@ -84,6 +86,7 @@ export function Toolbar() {
   const { template, setTemplate, fontFamily, setFontFamily, colorScheme, setColorScheme } = useCVContext();
   const [openDropdown, setOpenDropdown] = useState<'template' | 'font' | 'color' | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDropdown = (name: 'template' | 'font' | 'color') =>
     setOpenDropdown(openDropdown === name ? null : name);
@@ -195,7 +198,9 @@ export function Toolbar() {
         }
       }
 
-      pdf.save('AppnaCv.pdf');
+      const pdfBlob = pdf.output('blob');
+      storePendingBlob(pdfBlob, 'AppnaCv.pdf');
+      navigate('/processing');
     } catch (err: unknown) {
       console.error('PDF error:', err);
       alert('Download failed: ' + (err instanceof Error ? err.message : String(err)));

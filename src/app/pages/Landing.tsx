@@ -298,6 +298,38 @@ export function Landing() {
         </div>
       </section>
 
+      {/* Partner Projects Banner */}
+      <section className="bg-gray-800 py-6 px-5">
+        <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Partner Projects</span>
+            <div className="w-px h-4 bg-gray-600" />
+            <a
+              href="https://www.turkdrama.live"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xs font-bold">T</span>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-white group-hover:text-red-400 transition-colors">TurkVerse</span>
+                <span className="text-xs text-gray-400 ml-2">Watch Turkish Dramas Free</span>
+              </div>
+            </a>
+          </div>
+          <a
+            href="https://www.turkdrama.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs px-4 py-1.5 rounded-full border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-colors"
+          >
+            Visit TurkVerse →
+          </a>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-10">
         <div className="max-w-screen-xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -309,9 +341,10 @@ export function Landing() {
           </div>
           <p className="text-sm">© 2026 AppnaCv. Free for everyone, forever.</p>
           <div className="flex gap-5 text-sm">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <a href="/contact" className="hover:text-white transition-colors">Contact Us</a>
+            <a href="/blog" className="hover:text-white transition-colors">Blog</a>
           </div>
         </div>
       </footer>

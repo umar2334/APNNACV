@@ -3,6 +3,11 @@ import { createBrowserRouter, Outlet } from 'react-router';
 import { Header } from './components/Header';
 import { Landing } from './pages/Landing';
 import { Editor } from './pages/Editor';
+import { Processing } from './pages/Processing';
+import { Blog } from './pages/Blog';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsOfService } from './pages/TermsOfService';
+import { ContactUs } from './pages/ContactUs';
 import { CVProvider } from './context/CVContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
@@ -44,6 +49,11 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Landing },
       { path: 'editor', Component: Editor },
+      { path: 'processing', Component: Processing },
+      { path: 'blog', Component: Blog },
+      { path: 'privacy', Component: PrivacyPolicy },
+      { path: 'terms', Component: TermsOfService },
+      { path: 'contact', Component: ContactUs },
       { path: 'templates', Component: Landing },
       { path: 'how-it-works', Component: Landing },
       { path: '*', Component: NotFound },

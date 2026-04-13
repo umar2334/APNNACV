@@ -5,9 +5,9 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://appnacv.vercel.app/sitemap.xml
+Sitemap: https://apnnacv.vercel.app/sitemap.xml
 
-# Block unnecessary paths
-Disallow: /api/
-Disallow: /_next/
+# Block admin and non-public paths
+Disallow: /admin
+Disallow: /processing
 Disallow: /node_modules/

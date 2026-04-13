@@ -353,8 +353,8 @@ export function Landing() {
           </div>
           <p className="text-sm">© 2026 AppnaCv. Free for everyone, forever.</p>
           <div className="flex gap-5 text-sm">
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a>
             <a href="/contact" className="hover:text-white transition-colors">Contact Us</a>
             <a href="/blog" className="hover:text-white transition-colors">Blog</a>
           </div>

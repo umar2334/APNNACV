@@ -4,7 +4,7 @@ import {
   X, CheckCircle, AlertCircle, BarChart2, FileText, Globe,
 } from 'lucide-react';
 import {
-  BlogPost, getAdminPosts, savePost, updatePost, deletePost, generateSlug,
+  BlogPost, getAdminPostsFromDB, savePostToDB, updatePostInDB, deletePostFromDB, generateSlug,
 } from '../utils/blogStorage';
 
 // ── Password ────────────────────────────────────────────────────────────────
@@ -87,16 +87,16 @@ function ArticleEditor({
     if (autoSlug) set('slug', generateSlug(v));
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!form.title.trim()) return alert('Title is required.');
     if (!form.content.trim()) return alert('Content is required.');
     if (!form.excerpt.trim()) return alert('Excerpt is required.');
     if (!form.metaDescription.trim()) return alert('Meta description is required for SEO.');
     if (initial) {
-      updatePost(initial.id, form);
+      await updatePostInDB(initial.id, form);
       onSave('Article updated successfully!');
     } else {
-      savePost(form);
+      await savePostToDB(form);
       onSave('Article published successfully!');
     }
     onClose();
@@ -342,7 +342,7 @@ export function Admin() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  function load() { setPosts(getAdminPosts()); }
+  function load() { getAdminPostsFromDB().then(setPosts); }
 
   useEffect(() => {
     if (authed) load();
@@ -358,14 +358,10 @@ export function Admin() {
   function openEdit(post: BlogPost) { setEditorPost(post); setEditorOpen(true); }
   function handleDelete(id: string) {
     if (!window.confirm('Delete this article? This cannot be undone.')) return;
-    deletePost(id);
-    load();
-    setToast({ message: 'Article deleted.', type: 'success' });
+    deletePostFromDB(id).then(() => { load(); setToast({ message: 'Article deleted.', type: 'success' }); });
   }
   function handleTogglePublish(post: BlogPost) {
-    updatePost(post.id, { published: !post.published });
-    load();
-    setToast({ message: post.published ? 'Article set to draft.' : 'Article published!', type: 'success' });
+    updatePostInDB(post.id, { published: !post.published }).then(() => { load(); setToast({ message: post.published ? 'Article set to draft.' : 'Article published!', type: 'success' }); });
   }
 
   // ── Login Screen ──────────────────────────────────────────────────────────

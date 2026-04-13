@@ -5,6 +5,8 @@ import { Landing } from './pages/Landing';
 import { Editor } from './pages/Editor';
 import { Processing } from './pages/Processing';
 import { Blog } from './pages/Blog';
+import { BlogPost } from './pages/BlogPost';
+import { Admin } from './pages/Admin';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { ContactUs } from './pages/ContactUs';
@@ -21,7 +23,6 @@ function Root() {
           <main className="flex-1">
             <Outlet />
           </main>
-          {/* Global Google login modal — shows on top of any page */}
           <GoogleAuthModal />
         </div>
       </CVProvider>
@@ -51,6 +52,8 @@ export const router = createBrowserRouter([
       { path: 'editor', Component: Editor },
       { path: 'processing', Component: Processing },
       { path: 'blog', Component: Blog },
+      { path: 'blog/:slug', Component: BlogPost },
+      { path: 'admin', Component: Admin },
       { path: 'privacy', Component: PrivacyPolicy },
       { path: 'terms', Component: TermsOfService },
       { path: 'contact', Component: ContactUs },

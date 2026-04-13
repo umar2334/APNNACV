@@ -300,33 +300,45 @@ export function Landing() {
 
       {/* Partner Projects Banner */}
       <section className="bg-gray-800 py-6 px-5">
-        <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Partner Projects</span>
-            <div className="w-px h-4 bg-gray-600" />
+        <div className="max-w-screen-xl mx-auto">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 text-center">Partner Projects</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+
+            {/* TurkVerse */}
             <a
               href="https://www.turkdrama.live"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-red-500/40 transition-all group w-full sm:w-auto"
             >
-              <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">T</span>
+              <div className="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-white text-sm font-black">T</span>
               </div>
               <div>
-                <span className="text-sm font-semibold text-white group-hover:text-red-400 transition-colors">TurkVerse</span>
-                <span className="text-xs text-gray-400 ml-2">Watch Turkish Dramas Free</span>
+                <p className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">TurkVerse</p>
+                <p className="text-xs text-gray-400">Watch Turkish Dramas Free</p>
               </div>
+              <span className="ml-auto text-gray-500 group-hover:text-red-400 text-xs">Visit →</span>
             </a>
+
+            {/* EzySantz */}
+            <a
+              href="https://ezysantz-solution.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-blue-500/40 transition-all group w-full sm:w-auto"
+            >
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-white text-sm font-black">E</span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">EzySantz</p>
+                <p className="text-xs text-gray-400">Professional Web Solutions</p>
+              </div>
+              <span className="ml-auto text-gray-500 group-hover:text-blue-400 text-xs">Visit →</span>
+            </a>
+
           </div>
-          <a
-            href="https://www.turkdrama.live"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs px-4 py-1.5 rounded-full border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-colors"
-          >
-            Visit TurkVerse →
-          </a>
         </div>
       </section>
 

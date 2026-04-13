@@ -31,6 +31,7 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-6">
           <Link to="/templates" className="text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Templates</Link>
           <Link to="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">How it Works</Link>
+          <Link to="/blog" className="text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Blog</Link>
         </nav>
 
         {/* CTA Buttons */}
@@ -100,6 +101,7 @@ export function Header() {
         <div className="md:hidden border-t border-gray-100 px-5 py-4 space-y-3 bg-white">
           <Link to="/templates" className="block text-sm font-medium text-gray-700 py-2">Templates</Link>
           <Link to="/how-it-works" className="block text-sm font-medium text-gray-700 py-2">How it Works</Link>
+          <Link to="/blog" className="block text-sm font-medium text-gray-700 py-2">Blog</Link>
           {user ? (
             <>
               <div className="flex items-center gap-2 py-2">

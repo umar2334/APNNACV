@@ -1,65 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { FileText, Clock, ArrowRight, BookOpen } from 'lucide-react';
+import { FileText, Clock, ArrowRight, BookOpen, Tag } from 'lucide-react';
+import { BlogPost, getPublishedPosts } from '../utils/blogStorage';
 
-const ARTICLES = [
-  {
-    slug: 'how-to-write-ats-friendly-cv',
-    title: 'How to Write an ATS-Friendly CV in 2025',
-    excerpt: 'Applicant Tracking Systems reject up to 75% of CVs before a human ever reads them. Learn the exact formatting rules and keyword strategies that get you past the bots.',
-    date: 'April 10, 2025',
-    readTime: '6 min read',
-    category: 'CV Writing',
-    color: '#3B82F6',
-  },
-  {
-    slug: 'top-cv-mistakes-fresh-graduates',
-    title: 'Top 10 CV Mistakes Fresh Graduates Make (and How to Fix Them)',
-    excerpt: 'From listing every school project to skipping a summary — discover the most common CV mistakes fresh grads make and exactly how to fix each one.',
-    date: 'April 5, 2025',
-    readTime: '8 min read',
-    category: 'Career Tips',
-    color: '#10B981',
-  },
-  {
-    slug: 'cover-letter-guide-pakistan',
-    title: 'The Complete Cover Letter Guide for Pakistani Job Seekers',
-    excerpt: 'A strong cover letter can double your interview chances. This step-by-step guide shows you how to write one that resonates with Pakistani hiring managers.',
-    date: 'March 28, 2025',
-    readTime: '7 min read',
-    category: 'Job Search',
-    color: '#8B5CF6',
-  },
-  {
-    slug: 'linkedin-profile-tips',
-    title: 'LinkedIn Profile Tips That Get You Noticed by Recruiters',
-    excerpt: 'Over 90% of recruiters use LinkedIn to find candidates. Optimize your headline, summary, and experience sections to show up in more searches.',
-    date: 'March 20, 2025',
-    readTime: '5 min read',
-    category: 'LinkedIn',
-    color: '#F59E0B',
-  },
-  {
-    slug: 'salary-negotiation-tips',
-    title: 'How to Negotiate Your Salary in Pakistan: A Practical Guide',
-    excerpt: 'Most people leave money on the table by not negotiating. Learn evidence-based tactics for salary negotiation that work in the Pakistani job market.',
-    date: 'March 15, 2025',
-    readTime: '9 min read',
-    category: 'Career Growth',
-    color: '#EF4444',
-  },
-  {
-    slug: 'remote-jobs-for-pakistanis',
-    title: 'Best Remote Job Platforms for Pakistani Professionals in 2025',
-    excerpt: 'Upwork, Toptal, Remote.co — we break down the top 8 platforms where Pakistani professionals are earning in dollars, with tips to land your first client.',
-    date: 'March 8, 2025',
-    readTime: '6 min read',
-    category: 'Remote Work',
-    color: '#6366F1',
-  },
-];
+const CATEGORY_COLORS: Record<string, string> = {
+  'CV Writing': '#3B82F6',
+  'Career Tips': '#10B981',
+  'Job Search': '#8B5CF6',
+  'LinkedIn': '#F59E0B',
+  'Remote Work': '#6366F1',
+  'Career Growth': '#EF4444',
+  'Interview Tips': '#EC4899',
+  'Salary': '#14B8A6',
+};
+
+function colorFor(cat: string) {
+  return CATEGORY_COLORS[cat] ?? '#6B7280';
+}
 
 export function Blog() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+
+  useEffect(() => {
+    /* Set SEO meta for the blog index */
+    document.title = 'Career Tips & CV Guides | AppnaCv Blog';
+    let desc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (!desc) { desc = document.createElement('meta'); desc.name = 'description'; document.head.appendChild(desc); }
+    desc.content = 'Expert career tips, CV writing guides, and job search advice for Pakistani job seekers. Free resources to help you land your dream job.';
+
+    setPosts(getPublishedPosts());
+  }, []);
+
+  const categories = ['All', ...Array.from(new Set(posts.map((p) => p.category)))];
+  const filtered = activeCategory === 'All' ? posts : posts.filter((p) => p.category === activeCategory);
+
+  const wordCount = (content: string) => content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
+  const readTime = (content: string) => Math.max(1, Math.ceil(wordCount(content) / 200));
+
   return (
     <div className="bg-white min-h-screen">
 
@@ -85,50 +63,102 @@ export function Blog() {
         </div>
       </section>
 
-      {/* Articles Grid */}
-      <section className="max-w-screen-xl mx-auto px-5 py-14">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {ARTICLES.map((article) => (
-            <article
-              key={article.slug}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden"
+      {/* ── TOP AD SLOT ── */}
+      <div className="flex items-center justify-center py-4 bg-gray-50 border-b border-gray-100">
+        <div
+          className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg"
+          style={{ width: 728, maxWidth: '96vw', height: 90 }}
+        >
+          Advertisement · 728 × 90
+        </div>
+      </div>
+
+      {/* Category Filter */}
+      {categories.length > 2 && (
+        <div className="max-w-screen-xl mx-auto px-5 pt-8 flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                activeCategory === cat
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+              }`}
             >
-              {/* Color bar */}
-              <div className="h-1.5" style={{ backgroundColor: article.color }} />
-
-              <div className="p-6 flex flex-col flex-1">
-                {/* Category badge */}
-                <span
-                  className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mb-4 self-start"
-                  style={{ backgroundColor: `${article.color}18`, color: article.color }}
-                >
-                  {article.category}
-                </span>
-
-                <h2 className="text-lg font-bold text-gray-900 mb-3 leading-snug flex-1">
-                  {article.title}
-                </h2>
-
-                <p className="text-sm text-gray-500 mb-5 leading-relaxed">
-                  {article.excerpt}
-                </p>
-
-                {/* Meta */}
-                <div className="flex items-center justify-between text-xs text-gray-400 mt-auto pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-1.5">
-                    <Clock size={12} />
-                    <span>{article.readTime}</span>
-                  </div>
-                  <span>{article.date}</span>
-                </div>
-              </div>
-            </article>
+              {cat}
+            </button>
           ))}
         </div>
+      )}
+
+      {/* Articles Grid */}
+      <section className="max-w-screen-xl mx-auto px-5 py-10">
+        {filtered.length === 0 ? (
+          <div className="text-center py-20">
+            <BookOpen size={40} className="text-gray-200 mx-auto mb-4" />
+            <p className="text-gray-400 font-semibold">No articles yet in this category.</p>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((post) => {
+              const color = colorFor(post.category);
+              return (
+                <Link
+                  key={post.slug}
+                  to={`/blog/${post.slug}`}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group"
+                >
+                  {/* Featured image or color bar */}
+                  {post.featuredImage ? (
+                    <img src={post.featuredImage} alt={post.title} className="w-full h-40 object-cover" />
+                  ) : (
+                    <div className="h-1.5" style={{ backgroundColor: color }} />
+                  )}
+
+                  <div className="p-6 flex flex-col flex-1">
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold mb-4 self-start"
+                      style={{ backgroundColor: `${color}18`, color }}
+                    >
+                      <Tag size={9} /> {post.category}
+                    </span>
+
+                    <h2 className="text-lg font-bold text-gray-900 mb-3 leading-snug flex-1 group-hover:text-blue-700 transition-colors line-clamp-3">
+                      {post.title}
+                    </h2>
+
+                    <p className="text-sm text-gray-500 mb-5 leading-relaxed line-clamp-3">
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs text-gray-400 mt-auto pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-1.5">
+                        <Clock size={12} />
+                        <span>{readTime(post.content)} min read</span>
+                      </div>
+                      <span>{new Date(post.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </section>
 
+      {/* ── BOTTOM AD SLOT ── */}
+      <div className="flex items-center justify-center py-4 bg-gray-50 border-t border-gray-100">
+        <div
+          className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg"
+          style={{ width: 728, maxWidth: '96vw', height: 90 }}
+        >
+          Advertisement · 728 × 90
+        </div>
+      </div>
+
       {/* CTA */}
-      <section className="bg-gray-50 border-t border-gray-100 py-14 px-5">
+      <section className="bg-white border-t border-gray-100 py-14 px-5">
         <div className="max-w-xl mx-auto text-center">
           <FileText size={36} className="text-blue-500 mx-auto mb-4" />
           <h2 className="text-2xl font-extrabold text-gray-900 mb-3">

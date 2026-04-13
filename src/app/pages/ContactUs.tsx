@@ -12,7 +12,7 @@ export function ContactUs() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     /* Replace this with your real form submission (Formspree, EmailJS, etc.) */
-    const mailto = `mailto:contact@apnnacv.vercel.app?subject=AppnaCv Contact: ${encodeURIComponent(form.name)}&body=${encodeURIComponent(form.message)}%0A%0AFrom: ${encodeURIComponent(form.email)}`;
+    const mailto = `mailto:umarfreelancerweb@gmail.com?subject=AppnaCv Contact: ${encodeURIComponent(form.name)}&body=${encodeURIComponent(form.message)}%0A%0AFrom: ${encodeURIComponent(form.email)}`;
     window.location.href = mailto;
     setSent(true);
   }
@@ -50,10 +50,10 @@ export function ContactUs() {
                 <div>
                   <p className="text-sm font-semibold text-gray-800">Email</p>
                   <a
-                    href="mailto:contact@apnnacv.vercel.app"
+                    href="mailto:umarfreelancerweb@gmail.com"
                     className="text-sm text-blue-600 hover:underline"
                   >
-                    contact@apnnacv.vercel.app
+                    umarfreelancerweb@gmail.com
                   </a>
                 </div>
               </div>

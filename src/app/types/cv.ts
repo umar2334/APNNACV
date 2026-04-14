@@ -74,7 +74,7 @@ export const DEFAULT_CV_DATA: CVData = {
     fullName: 'your name ',
     photo: '',
     title: 'Senior Software Engineer',
-    email: 'umar@example.com',
+    email: '@example.com',
     phone: '+92 300 1234567',
     location: 'Lahore, Pakistan',
     linkedin: 'linkedin.com/in/username',

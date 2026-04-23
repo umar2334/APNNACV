@@ -7,23 +7,19 @@ function AdsterraBanner({ adKey, width, height }: { adKey: string; width: number
   const ref = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current || ref.current.querySelector('script')) return;
-    // Set atOptions BEFORE loading script
     const optsScript = document.createElement('script');
     optsScript.type = 'text/javascript';
     optsScript.text = `atOptions = { 'key': '${adKey}', 'format': 'iframe', 'height': ${height}, 'width': ${width}, 'params': {} };`;
-    ref.current.appendChild(optsScript);
-    // Load the invoke script
+    document.head.appendChild(optsScript);
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
-    invokeScript.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    invokeScript.async = true;
+    invokeScript.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
     ref.current.appendChild(invokeScript);
   }, [adKey, width, height]);
 
   return (
-    <div
-      ref={ref}
-      style={{ width, height, margin: '0 auto', overflow: 'hidden' }}
-    />
+    <div ref={ref} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />
   );
 }
 

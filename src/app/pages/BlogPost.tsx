@@ -11,10 +11,11 @@ function AdsterraBanner({ adKey, width, height, uid }: { adKey: string; width: n
     const optsScript = document.createElement('script');
     optsScript.type = 'text/javascript';
     optsScript.text = `atOptions = { 'key': '${adKey}', 'format': 'iframe', 'height': ${height}, 'width': ${width}, 'params': {} };`;
-    ref.current.appendChild(optsScript);
+    document.head.appendChild(optsScript);
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
-    invokeScript.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    invokeScript.async = true;
+    invokeScript.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
     ref.current.appendChild(invokeScript);
   }, [adKey, uid]);
   return <div ref={ref} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />;

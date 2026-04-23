@@ -1,6 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+
+// ── Adsterra Banner Ad Component ──────────────────────────────────────────────
+function AdsterraBanner({ adKey, width, height }: { adKey: string; width: number; height: number }) {
+  useEffect(() => {
+    const containerId = `at-container-${adKey}`;
+    const container = document.getElementById(containerId);
+    if (!container || container.querySelector('script')) return;
+    (window as any).atOptions = { key: adKey, format: 'iframe', height, width, params: {} };
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    container.appendChild(script);
+  }, [adKey]);
+
+  return (
+    <div
+      id={`at-container-${adKey}`}
+      style={{ width, height, margin: '0 auto', overflow: 'hidden' }}
+    />
+  );
+}
+
+// ── Adsterra Native Banner Component ─────────────────────────────────────────
+function AdsterraNative() {
+  useEffect(() => {
+    const containerId = 'container-0bb750990d71d2ff4e818fa662784157';
+    const container = document.getElementById(containerId);
+    if (!container || container.querySelector('script')) return;
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = 'https://pl29235062.profitablecpmratenetwork.com/0bb750990d71d2ff4e818fa662784157/invoke.js';
+    container.appendChild(script);
+  }, []);
+  return <div id="container-0bb750990d71d2ff4e818fa662784157" style={{ width: '100%' }} />;
+}
 import {
   CheckCircle, ArrowRight, Download, FileText, Star,
   Zap, Shield, Target, Users, ChevronRight, Sparkles,
@@ -126,6 +162,11 @@ export function Landing() {
         </div>
       </section>
 
+      {/* ✅ ADSTERRA Banner 728x90 — Hero ke baad */}
+      <div className="py-3 flex justify-center bg-white border-b border-gray-100">
+        <AdsterraBanner adKey="4af9a7133d3a622a55ec2eb6fc1760a9" width={728} height={90} />
+      </div>
+
       {/* Stats Bar */}
       <div className="border-y border-gray-100 bg-gray-50">
         <div className="max-w-screen-xl mx-auto px-5 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -162,6 +203,13 @@ export function Landing() {
           ))}
         </div>
       </section>
+
+      {/* ✅ ADSTERRA Native Banner — Features ke baad */}
+      <div className="py-4 px-5 bg-gray-50 border-y border-gray-100">
+        <div className="max-w-screen-xl mx-auto">
+          <AdsterraNative />
+        </div>
+      </div>
 
       {/* How it Works */}
       <section className="py-20" style={{ background: 'linear-gradient(160deg, #EFF6FF, #F8FAFF)' }}>
@@ -273,6 +321,12 @@ export function Landing() {
               </div>
             ))}
           </div>
+
+          {/* ✅ ADSTERRA Banner 300x250 — Testimonials ke neeche */}
+          <div className="mt-10 flex justify-center">
+            <AdsterraBanner adKey="c41379b356692c0ff166fc929170cb1d" width={300} height={250} />
+          </div>
+
         </div>
       </section>
 
@@ -297,6 +351,11 @@ export function Landing() {
           <p className="text-blue-300 text-xs mt-4">No signup. No credit card. Just results.</p>
         </div>
       </section>
+
+      {/* ✅ ADSTERRA Banner 468x60 — Footer se pehle */}
+      <div className="py-4 flex justify-center bg-white border-t border-gray-100">
+        <AdsterraBanner adKey="aeabfd7ad07507ef114bc8f2d0db46bc" width={468} height={60} />
+      </div>
 
       {/* Partner Projects Banner */}
       <section className="bg-gray-800 py-6 px-5">

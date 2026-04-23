@@ -5,17 +5,19 @@ import { BlogPost as BlogPostType, getPostBySlugFromDB, getPublishedPostsFromDB 
 
 // ── Adsterra Banner ───────────────────────────────────────────────────────────
 function AdsterraBanner({ adKey, width, height, uid }: { adKey: string; width: number; height: number; uid: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const containerId = `at-bp-${uid}`;
-    const container = document.getElementById(containerId);
-    if (!container || container.querySelector('script')) return;
-    (window as any).atOptions = { key: adKey, format: 'iframe', height, width, params: {} };
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
-    container.appendChild(script);
+    if (!ref.current || ref.current.querySelector('script')) return;
+    const optsScript = document.createElement('script');
+    optsScript.type = 'text/javascript';
+    optsScript.text = `atOptions = { 'key': '${adKey}', 'format': 'iframe', 'height': ${height}, 'width': ${width}, 'params': {} };`;
+    ref.current.appendChild(optsScript);
+    const invokeScript = document.createElement('script');
+    invokeScript.type = 'text/javascript';
+    invokeScript.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    ref.current.appendChild(invokeScript);
   }, [adKey, uid]);
-  return <div id={`at-bp-${uid}`} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />;
+  return <div ref={ref} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />;
 }
 
 function setMeta(name: string, content: string, isProperty = false) {

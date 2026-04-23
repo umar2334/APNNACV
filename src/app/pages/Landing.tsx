@@ -4,20 +4,24 @@ import { useAuth } from '../context/AuthContext';
 
 // ── Adsterra Banner Ad Component ──────────────────────────────────────────────
 function AdsterraBanner({ adKey, width, height }: { adKey: string; width: number; height: number }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const containerId = `at-container-${adKey}`;
-    const container = document.getElementById(containerId);
-    if (!container || container.querySelector('script')) return;
-    (window as any).atOptions = { key: adKey, format: 'iframe', height, width, params: {} };
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
-    container.appendChild(script);
-  }, [adKey]);
+    if (!ref.current || ref.current.querySelector('script')) return;
+    // Set atOptions BEFORE loading script
+    const optsScript = document.createElement('script');
+    optsScript.type = 'text/javascript';
+    optsScript.text = `atOptions = { 'key': '${adKey}', 'format': 'iframe', 'height': ${height}, 'width': ${width}, 'params': {} };`;
+    ref.current.appendChild(optsScript);
+    // Load the invoke script
+    const invokeScript = document.createElement('script');
+    invokeScript.type = 'text/javascript';
+    invokeScript.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    ref.current.appendChild(invokeScript);
+  }, [adKey, width, height]);
 
   return (
     <div
-      id={`at-container-${adKey}`}
+      ref={ref}
       style={{ width, height, margin: '0 auto', overflow: 'hidden' }}
     />
   );

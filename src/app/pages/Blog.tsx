@@ -3,6 +3,21 @@ import { Link } from 'react-router';
 import { FileText, Clock, ArrowRight, BookOpen, Tag, Loader } from 'lucide-react';
 import { BlogPost, getPublishedPostsFromDB } from '../utils/blogStorage';
 
+// ── Adsterra Banner ───────────────────────────────────────────────────────────
+function AdsterraBanner({ adKey, width, height }: { adKey: string; width: number; height: number }) {
+  useEffect(() => {
+    const containerId = `at-container-${adKey}`;
+    const container = document.getElementById(containerId);
+    if (!container || container.querySelector('script')) return;
+    (window as any).atOptions = { key: adKey, format: 'iframe', height, width, params: {} };
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    container.appendChild(script);
+  }, [adKey]);
+  return <div id={`at-container-${adKey}`} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />;
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   'CV Writing': '#3B82F6',
   'Career Tips': '#10B981',
@@ -58,11 +73,9 @@ export function Blog() {
         </div>
       </section>
 
-      {/* Top Ad Slot */}
+      {/* Top Ad — 728x90 */}
       <div className="flex items-center justify-center py-4 bg-gray-50 border-b border-gray-100">
-        <div className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg" style={{ width: 728, maxWidth: '96vw', height: 90 }}>
-          Advertisement · 728 × 90
-        </div>
+        <AdsterraBanner adKey="4af9a7133d3a622a55ec2eb6fc1760a9" width={728} height={90} />
       </div>
 
       {/* Category Filter */}
@@ -124,11 +137,9 @@ export function Blog() {
         )}
       </section>
 
-      {/* Bottom Ad Slot */}
+      {/* Bottom Ad — 728x90 */}
       <div className="flex items-center justify-center py-4 bg-gray-50 border-t border-gray-100">
-        <div className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg" style={{ width: 728, maxWidth: '96vw', height: 90 }}>
-          Advertisement · 728 × 90
-        </div>
+        <AdsterraBanner adKey="aeabfd7ad07507ef114bc8f2d0db46bc" width={468} height={60} />
       </div>
 
       {/* CTA */}

@@ -3,6 +3,21 @@ import { useParams, Link, useNavigate } from 'react-router';
 import { ArrowLeft, Clock, Tag, User, Calendar, ArrowRight, Loader } from 'lucide-react';
 import { BlogPost as BlogPostType, getPostBySlugFromDB, getPublishedPostsFromDB } from '../utils/blogStorage';
 
+// ── Adsterra Banner ───────────────────────────────────────────────────────────
+function AdsterraBanner({ adKey, width, height, uid }: { adKey: string; width: number; height: number; uid: string }) {
+  useEffect(() => {
+    const containerId = `at-bp-${uid}`;
+    const container = document.getElementById(containerId);
+    if (!container || container.querySelector('script')) return;
+    (window as any).atOptions = { key: adKey, format: 'iframe', height, width, params: {} };
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `//www.profitablecpmratenetwork.com/ad/${adKey}`;
+    container.appendChild(script);
+  }, [adKey, uid]);
+  return <div id={`at-bp-${uid}`} style={{ width, height, margin: '0 auto', overflow: 'hidden' }} />;
+}
+
 function setMeta(name: string, content: string, isProperty = false) {
   const attr = isProperty ? 'property' : 'name';
   let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
@@ -78,11 +93,9 @@ export function BlogPost() {
   return (
     <div className="bg-white min-h-screen">
 
-      {/* Top Ad Slot */}
-      <div className="w-full bg-gray-50 border-b border-gray-100 flex items-center justify-center" style={{ minHeight: 90 }}>
-        <div className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg" style={{ width: 728, maxWidth: '96vw', height: 90 }}>
-          Advertisement · 728 × 90
-        </div>
+      {/* Top Ad — 728x90 */}
+      <div className="w-full bg-gray-50 border-b border-gray-100 flex items-center justify-center py-3">
+        <AdsterraBanner adKey="4af9a7133d3a622a55ec2eb6fc1760a9" width={728} height={90} uid="top" />
       </div>
 
       <div className="max-w-3xl mx-auto px-5 py-10">
@@ -108,11 +121,9 @@ export function BlogPost() {
           <img src={post.featuredImage} alt={post.title} className="w-full rounded-2xl object-cover mb-8 max-h-80" />
         )}
 
-        {/* Mid Ad Slot */}
+        {/* Mid Ad — 300x250 */}
         <div className="flex items-center justify-center my-8">
-          <div className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg" style={{ width: 336, maxWidth: '100%', height: 280 }}>
-            Advertisement · 336 × 280
-          </div>
+          <AdsterraBanner adKey="c41379b356692c0ff166fc929170cb1d" width={300} height={250} uid="mid" />
         </div>
 
         <div
@@ -155,11 +166,9 @@ export function BlogPost() {
         </div>
       )}
 
-      {/* Bottom Ad Slot */}
-      <div className="w-full bg-white border-t border-gray-100 flex items-center justify-center" style={{ minHeight: 90 }}>
-        <div className="flex items-center justify-center text-gray-400 text-xs font-medium border border-dashed border-gray-300 rounded-lg" style={{ width: 728, maxWidth: '96vw', height: 90 }}>
-          Advertisement · 728 × 90
-        </div>
+      {/* Bottom Ad — 468x60 */}
+      <div className="w-full bg-white border-t border-gray-100 flex items-center justify-center py-4">
+        <AdsterraBanner adKey="aeabfd7ad07507ef114bc8f2d0db46bc" width={468} height={60} uid="bottom" />
       </div>
 
     </div>

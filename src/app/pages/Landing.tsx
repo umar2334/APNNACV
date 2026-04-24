@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { BlogPost, getPublishedPostsFromDB } from '../utils/blogStorage';
+import { BookOpen, Clock, Tag } from 'lucide-react';
 
 // ── Adsterra Banner Ad Component ──────────────────────────────────────────────
 function AdsterraBanner({ adKey, width, height }: { adKey: string; width: number; height: number }) {
@@ -67,6 +69,11 @@ const TESTIMONIALS = [
 export function Landing() {
   const { user, openLoginModal } = useAuth();
   const navigate = useNavigate();
+  const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    getPublishedPostsFromDB().then((all) => setFeaturedPosts(all.slice(0, 3)));
+  }, []);
 
   return (
     <div className="bg-white min-h-screen">
@@ -329,6 +336,60 @@ export function Landing() {
 
         </div>
       </section>
+
+      {/* Featured Blog Articles — SEO Internal Linking */}
+      {featuredPosts.length > 0 && (
+        <section className="py-16 px-5 bg-gray-50 border-t border-gray-100">
+          <div className="max-w-screen-xl mx-auto">
+            <div className="flex items-center justify-between mb-10 flex-wrap gap-3">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-3">
+                  <BookOpen size={12} className="text-blue-600" />
+                  <span className="text-xs font-semibold text-blue-700">Latest from Our Blog</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">Career Tips & CV Guides</h2>
+                <p className="text-sm text-gray-500 mt-1">Expert advice for Pakistani job seekers — free forever</p>
+              </div>
+              <Link
+                to="/blog"
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                View All Articles <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {featuredPosts.map((post) => {
+                const readTime = Math.max(1, Math.ceil(post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length / 200));
+                return (
+                  <Link
+                    key={post.slug}
+                    to={`/blog/${post.slug}`}
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group"
+                  >
+                    {post.featuredImage
+                      ? <img src={post.featuredImage} alt={post.title} className="w-full h-40 object-cover" />
+                      : <div className="h-1.5 bg-blue-500" />
+                    }
+                    <div className="p-5 flex flex-col flex-1">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold mb-3 self-start bg-blue-50 text-blue-700">
+                        <Tag size={9} /> {post.category}
+                      </span>
+                      <h3 className="text-base font-bold text-gray-900 mb-2 leading-snug flex-1 group-hover:text-blue-700 transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-4 line-clamp-2">{post.excerpt}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-auto">
+                        <Clock size={11} /> {readTime} min read
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Final CTA */}
       <section

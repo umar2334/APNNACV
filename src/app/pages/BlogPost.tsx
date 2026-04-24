@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
-import { ArrowLeft, Clock, Tag, User, Calendar, ArrowRight, Loader } from 'lucide-react';
+import { ArrowLeft, Clock, Tag, User, Calendar, ArrowRight, Loader, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { BlogPost as BlogPostType, getPostBySlugFromDB, getPublishedPostsFromDB } from '../utils/blogStorage';
 
 // ── Adsterra Banner ───────────────────────────────────────────────────────────
@@ -60,9 +60,8 @@ export function BlogPost() {
       setMeta('twitter:title', found.title);
       setMeta('twitter:description', found.metaDescription || found.excerpt);
 
-      // JSON-LD
-      const old = document.querySelector('script[data-blog-ld]');
-      if (old) old.remove();
+      // JSON-LD: BlogPosting
+      document.querySelector('script[data-blog-ld]')?.remove();
       const ld = document.createElement('script');
       ld.type = 'application/ld+json';
       ld.setAttribute('data-blog-ld', '');
@@ -70,14 +69,44 @@ export function BlogPost() {
         '@context': 'https://schema.org', '@type': 'BlogPosting',
         headline: found.title, description: found.metaDescription || found.excerpt,
         author: { '@type': 'Person', name: found.author },
-        publisher: { '@type': 'Organization', name: 'AppnaCv', url: 'https://apnnacv.vercel.app' },
-        datePublished: found.createdAt, dateModified: found.updatedAt, url,
-        keywords: found.keywords, articleSection: found.category,
+        publisher: {
+          '@type': 'Organization',
+          name: 'AppnaCv',
+          url: 'https://apnnacv.vercel.app',
+          logo: { '@type': 'ImageObject', url: 'https://apnnacv.vercel.app/apple-touch-icon.png' },
+        },
+        datePublished: found.createdAt, dateModified: found.updatedAt,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+        url, keywords: found.keywords, articleSection: found.category,
+        inLanguage: 'en-PK',
       });
       document.head.appendChild(ld);
+
+      // JSON-LD: BreadcrumbList (Google loves these)
+      document.querySelector('script[data-breadcrumb-ld]')?.remove();
+      const bc = document.createElement('script');
+      bc.type = 'application/ld+json';
+      bc.setAttribute('data-breadcrumb-ld', '');
+      bc.textContent = JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://apnnacv.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://apnnacv.vercel.app/blog' },
+          { '@type': 'ListItem', position: 3, name: found.title, item: url },
+        ],
+      });
+      document.head.appendChild(bc);
     });
-    return () => { document.querySelector('script[data-blog-ld]')?.remove(); };
+    return () => {
+      document.querySelector('script[data-blog-ld]')?.remove();
+      document.querySelector('script[data-breadcrumb-ld]')?.remove();
+    };
   }, [slug, navigate]);
+
+  // Share URLs
+  const shareUrl = post ? `https://apnnacv.vercel.app/blog/${post.slug}` : '';
+  const shareText = post ? encodeURIComponent(post.title) : '';
+  const encodedUrl = encodeURIComponent(shareUrl);
 
   if (loading) {
     return (
@@ -102,6 +131,17 @@ export function BlogPost() {
       </div>
 
       <div className="max-w-3xl mx-auto px-5 py-10">
+        {/* Breadcrumbs — SEO critical */}
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center gap-1.5 text-xs text-gray-400 flex-wrap">
+            <li><Link to="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
+            <li className="text-gray-300">/</li>
+            <li><Link to="/blog" className="hover:text-blue-600 transition-colors">Blog</Link></li>
+            <li className="text-gray-300">/</li>
+            <li className="text-gray-600 font-medium truncate max-w-[200px]">{post.title}</li>
+          </ol>
+        </nav>
+
         <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-blue-600 transition-colors mb-6">
           <ArrowLeft size={14} /> Back to Blog
         </Link>
@@ -134,11 +174,53 @@ export function BlogPost() {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
+        {/* Social Share Buttons — drives traffic back to site */}
+        <div className="mt-10 pt-6 border-t border-gray-100">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+              <Share2 size={14} /> Share this article:
+            </span>
+            <a
+              href={`https://wa.me/?text=${shareText}%20${encodedUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-xs font-semibold hover:bg-green-100 transition-all"
+              aria-label="Share on WhatsApp"
+            >
+              <MessageCircle size={13} /> WhatsApp
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-all"
+              aria-label="Share on Facebook"
+            >
+              <Facebook size={13} /> Facebook
+            </a>
+            <a
+              href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${shareText}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 text-sky-700 text-xs font-semibold hover:bg-sky-100 transition-all"
+              aria-label="Share on Twitter"
+            >
+              <Twitter size={13} /> Twitter
+            </a>
+            <a
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-800 text-xs font-semibold hover:bg-blue-100 transition-all"
+              aria-label="Share on LinkedIn"
+            >
+              <Linkedin size={13} /> LinkedIn
+            </a>
+          </div>
+        </div>
+
         {post.keywords && (
           <div className="mt-8 pt-6 border-t border-gray-100">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Related Topics</p>
             <div className="flex flex-wrap gap-2">
               {post.keywords.split(',').map((kw) => kw.trim()).filter(Boolean).map((kw) => (
-                <span key={kw} className="px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">{kw}</span>
+                <span key={kw} className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">#{kw.replace(/\s+/g, '')}</span>
               ))}
             </div>
           </div>

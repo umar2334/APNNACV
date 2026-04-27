@@ -1892,18 +1892,34 @@ export function generateSlug(title: string): string {
 
 // ── Firestore CRUD ────────────────────────────────────────────────────────────
 
+async function fetchAutoPosts(): Promise<BlogPost[]> {
+  try {
+    const res = await fetch('/auto-posts.json', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? (data as BlogPost[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getAllPostsFromDB(): Promise<BlogPost[]> {
+  const autoPosts = await fetchAutoPosts();
   try {
     const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'));
     const snap = await getDocs(q);
     const firestorePosts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as BlogPost));
 
-    // Merge: Firestore posts first, then defaults (only if slug not already present)
-    const firestoreSlugs = new Set(firestorePosts.map((p) => p.slug));
-    return [...firestorePosts, ...DEFAULT_POSTS.filter((p) => !firestoreSlugs.has(p.slug))];
+    // Merge order: auto-published (latest first), then Firestore, then DEFAULT_POSTS — de-dup by slug
+    const seen = new Set<string>();
+    const out: BlogPost[] = [];
+    for (const p of [...autoPosts, ...firestorePosts, ...DEFAULT_POSTS]) {
+      if (!seen.has(p.slug)) { seen.add(p.slug); out.push(p); }
+    }
+    return out;
   } catch (err) {
     console.error('Firestore fetch error:', err);
-    return DEFAULT_POSTS;
+    return [...autoPosts, ...DEFAULT_POSTS];
   }
 }
 
